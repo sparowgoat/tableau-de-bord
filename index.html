@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Tableau de bord</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+*{-webkit-box-sizing:border-box;box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;color:#eef0e6;overflow-x:hidden;
+ background:#0b1a2a;background:-webkit-linear-gradient(top,#07121f 0%,#0f2b3d 55%,#1b5560 100%);background:linear-gradient(to bottom,#07121f 0%,#0f2b3d 55%,#1b5560 100%);
+ background-attachment:fixed;-webkit-text-size-adjust:100%}
+#sky{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.moon{position:fixed;top:5%;right:6%;width:90px;height:90px;border-radius:50%;z-index:0;
+ background:#f3e6c4;-webkit-box-shadow:0 0 60px 12px rgba(243,230,196,.22);box-shadow:0 0 60px 12px rgba(243,230,196,.22)}
+.moon:after{content:"";position:absolute;top:-6px;left:22px;width:90px;height:90px;border-radius:50%;background:#0a1a2a;opacity:.92}
+#waves{position:fixed;bottom:0;left:0;width:100%;height:34%;z-index:0;pointer-events:none}
+#scene{position:fixed;right:0;bottom:0;height:90%;width:75%;z-index:0;pointer-events:none}
+.beam{-webkit-animation:pulse 7s ease-in-out infinite;animation:pulse 7s ease-in-out infinite}
+@-webkit-keyframes pulse{0%,100%{opacity:.2}50%{opacity:.9}}
+@keyframes pulse{0%,100%{opacity:.2}50%{opacity:.9}}
+.wrap{position:relative;z-index:1;padding:26px 30px 40px}
+.top{display:-webkit-flex;display:flex;-webkit-align-items:flex-end;align-items:flex-end;-webkit-justify-content:space-between;justify-content:space-between;margin-bottom:22px;padding-right:110px}
+#clock{font-family:Georgia,"Times New Roman",serif;font-size:128px;line-height:.95;letter-spacing:-3px;color:#f6ecd0;font-weight:normal}
+#date{font-family:Georgia,serif;font-style:italic;font-size:28px;color:#9fd0c0;padding-bottom:10px;text-align:right}
+.cols{display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;margin:0 -10px}
+.col{-webkit-flex:1 1 380px;flex:1 1 380px;padding:0 10px;min-width:0}
+.panel{background:rgba(7,18,31,.5);border:1px solid rgba(159,208,192,.22);border-radius:14px;padding:18px 20px;margin-bottom:20px}
+h2{font-family:Georgia,serif;font-weight:normal;font-size:24px;color:#f2a65a;margin-bottom:12px}
+h3{font-size:15px;font-weight:600;color:#9fd0c0;margin:12px 0 6px}
+ul{list-style:none}
+li{font-size:18px;line-height:1.35;padding:8px 0;border-bottom:1px solid rgba(238,240,230,.09)}
+li:last-child{border-bottom:none}
+.news li small{display:block;color:#8fa9b0;font-size:13px;margin-top:2px}
+.item{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center}
+.item .box{-webkit-flex:0 0 28px;flex:0 0 28px;width:28px;height:28px;border:2px solid #9fd0c0;border-radius:7px;margin-right:12px;text-align:center;line-height:24px;font-size:20px;color:#07121f}
+.item.done .box{background:#9fd0c0}
+.item.done .txt{text-decoration:line-through;color:#6f8a91}
+.txt{-webkit-flex:1;flex:1}
+.del{color:#6f8a91;font-size:24px;padding:0 6px}
+.add{display:-webkit-flex;display:flex;margin-top:10px}
+.add input{-webkit-flex:1;flex:1;font-size:17px;padding:10px 12px;border-radius:9px;border:1px solid rgba(159,208,192,.35);background:rgba(255,255,255,.07);color:#eef0e6;-webkit-appearance:none;min-width:0}
+.add button,.sug span{font-size:16px;border:none;border-radius:9px;background:#f2a65a;color:#07121f;padding:10px 16px;margin-left:8px;-webkit-appearance:none}
+.sug{margin-top:6px}
+.sug span{display:inline-block;margin:0 8px 8px 0;background:rgba(159,208,192,.16);color:#d5efe5;border:1px solid rgba(159,208,192,.35);font-size:15px;padding:8px 12px}
+.muted{color:#8fa9b0;font-size:15px}
+@media (orientation:portrait){#clock{font-size:104px}.moon{width:64px;height:64px}.moon:after{width:64px;height:64px;left:16px}.top{padding-right:80px}}
+</style>
+</head>
+<body>
+<svg id="sky" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<g fill="#f6ecd0">
+<circle cx="30" cy="30" r="1"/><circle cx="80" cy="70" r=".8"/><circle cx="130" cy="20" r="1.2"/><circle cx="190" cy="55" r=".8"/>
+<circle cx="240" cy="25" r="1"/><circle cx="290" cy="80" r=".8"/><circle cx="330" cy="40" r="1.2"/><circle cx="370" cy="95" r=".8"/>
+<circle cx="55" cy="120" r=".8"/><circle cx="160" cy="110" r="1"/><circle cx="260" cy="130" r=".8"/><circle cx="350" cy="150" r="1"/>
+</g>
+</svg>
+<div class="moon"></div>
+<svg id="scene" viewBox="0 0 400 500" preserveAspectRatio="xMaxYMax meet" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialGradient id="glow"><stop offset="0" stop-color="#f2a65a" stop-opacity=".55"/><stop offset="1" stop-color="#f2a65a" stop-opacity="0"/></radialGradient>
+<linearGradient id="bl" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#f6d9a0" stop-opacity=".55"/><stop offset="1" stop-color="#f6d9a0" stop-opacity="0"/></linearGradient>
+<linearGradient id="br" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f6d9a0" stop-opacity=".55"/><stop offset="1" stop-color="#f6d9a0" stop-opacity="0"/></linearGradient>
+</defs>
+<g class="beam">
+<polygon points="250,193 0,150 0,238" fill="url(#bl)"/>
+<polygon points="250,193 400,158 400,230" fill="url(#br)"/>
+</g>
+<circle cx="250" cy="193" r="46" fill="url(#glow)"/>
+<path d="M0 500 L0 438 L38 418 L88 426 L128 402 L176 386 L214 376 L296 372 L338 390 L378 402 L400 422 L400 500Z" fill="#0b1a27"/>
+<path d="M120 404 L176 386 L214 376 L296 372 L322 384 L290 398 L200 402 L150 416Z" fill="#14303f"/>
+<rect x="148" y="338" width="64" height="40" fill="#d3d9d2"/>
+<polygon points="142,338 180,316 218,338" fill="#27394a"/>
+<rect x="164" y="352" width="9" height="12" fill="#f2a65a"/>
+<rect x="188" y="352" width="9" height="12" fill="#f2a65a"/>
+<polygon points="224,376 276,376 268,215 232,215" fill="#ebeee7"/>
+<polygon points="250,376 276,376 268,215 250,215" fill="#bcc4be"/>
+<rect x="244" y="344" width="11" height="32" fill="#1b2a38"/>
+<rect x="228" y="206" width="44" height="10" fill="#1b2a38"/>
+<rect x="237" y="180" width="26" height="26" fill="#f2a65a"/>
+<line x1="250" y1="180" x2="250" y2="206" stroke="#1b2a38" stroke-width="2"/>
+<polygon points="233,180 250,160 267,180" fill="#1b2a38"/>
+<circle cx="250" cy="157" r="3" fill="#1b2a38"/>
+<path d="M0 440 L0 470 L60 462 L112 470 L150 450 L110 436 L50 440Z" fill="#102433"/>
+</svg>
+<svg id="waves" viewBox="0 0 1200 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 120 C150 70 300 170 450 120 C600 70 750 170 900 120 C1050 70 1150 150 1200 120 L1200 300 L0 300Z" fill="#1f6b6e" opacity=".45"/>
+<path d="M0 170 C150 120 300 220 450 170 C600 120 750 220 900 170 C1050 120 1150 200 1200 170 L1200 300 L0 300Z" fill="#17505e" opacity=".6"/>
+<path d="M0 220 C150 175 300 265 450 220 C600 175 750 265 900 220 C1050 175 1150 245 1200 220 L1200 300 L0 300Z" fill="#0d3347" opacity=".85"/>
+</svg>
+
+<div class="wrap">
+ <div class="top"><div id="clock">--:--</div><div id="date"></div></div>
+ <div class="cols">
+  <div class="col">
+   <div class="panel news"><h2>Actualités du jour</h2><ul id="news"><li class="muted">Chargement…</li></ul></div>
+  </div>
+  <div class="col">
+   <div class="panel"><h2>Objectifs</h2>
+    <h3>Court terme</h3><ul id="g-court"></ul>
+    <div class="add"><input id="in-court" type="text" placeholder="Nouvel objectif court terme"><button onclick="addGoal('court')">Ajouter</button></div>
+    <h3>Long terme</h3><ul id="g-long"></ul>
+    <div class="add"><input id="in-long" type="text" placeholder="Nouvel objectif long terme"><button onclick="addGoal('long')">Ajouter</button></div>
+   </div>
+   <div class="panel"><h2>À faire</h2><ul id="todo"></ul>
+    <div class="add"><input id="in-todo" type="text" placeholder="Nouvelle tâche"><button onclick="addTodo()">Ajouter</button></div>
+    <h3>Idées à ajouter (touche pour ajouter)</h3><div class="sug" id="sug"></div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<script>
+(function(){
+var JOURS=["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+var MOIS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+function p(n){return n<10?"0"+n:""+n}
+function tick(){var d=new Date();
+ document.getElementById("clock").innerHTML=p(d.getHours())+":"+p(d.getMinutes());
+ document.getElementById("date").innerHTML=JOURS[d.getDay()]+" "+d.getDate()+" "+MOIS[d.getMonth()]+"<br>"+d.getFullYear();}
+tick();setInterval(tick,10000);
+
+/* stockage (avec repli si indisponible) */
+function load(k,def){try{var v=localStorage.getItem(k);return v?JSON.parse(v):def}catch(e){return def}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+
+var goals=load("db_goals",{
+ court:[{t:"Finaliser mon modèle de facture APA",d:0},{t:"Préparer le dossier de micro-entreprise",d:0}],
+ long:[{t:"Lancer ma micro-entreprise en APA",d:0},{t:"Construire une clientèle régulière (individuel et collectif)",d:0}]});
+var todo=load("db_todo",[{t:"Relancer les structures contactées",d:0},{t:"Mettre à jour le CV",d:0}]);
+
+var SUG=["Déclarer l’activité (guichet des formalités)","Souscrire une assurance RC Pro","Ouvrir un compte bancaire dédié","Créer une fiche tarifaire","Contacter EHPAD, associations et cabinets","Préparer une plaquette de présentation","Faire le point sur les revenus du mois","Marcher 30 minutes","Appeler un proche"];
+
+function renderList(id,arr,toggleFn,delFn){var h="";
+ for(var i=0;i<arr.length;i++){
+  h+='<li class="item'+(arr[i].d?' done':'')+'"><span class="box" onclick="'+toggleFn+'('+i+')">'+(arr[i].d?'✓':'')+'</span><span class="txt" onclick="'+toggleFn+'('+i+')">'+esc(arr[i].t)+'</span><span class="del" onclick="'+delFn+'('+i+')">×</span></li>';}
+ document.getElementById(id).innerHTML=h;}
+function render(){
+ renderList("g-court",goals.court,"togGoal('court',","delGoal('court',");
+ renderList("g-long",goals.long,"togGoal('long',","delGoal('long',");
+ renderList("todo",todo,"togTodo","delTodo");
+ var s="";for(var i=0;i<SUG.length;i++){s+='<span onclick="addSug('+i+')">'+esc(SUG[i])+'</span>';}
+ document.getElementById("sug").innerHTML=s;
+ save("db_goals",goals);save("db_todo",todo);}
+/* les fonctions inline des attributs onclick doivent être globales */
+window.togGoal=function(k,i){goals[k][i].d=goals[k][i].d?0:1;render()};
+window.delGoal=function(k,i){goals[k].splice(i,1);render()};
+window.togTodo=function(i){todo[i].d=todo[i].d?0:1;render()};
+window.delTodo=function(i){todo.splice(i,1);render()};
+window.addGoal=function(k){var el=document.getElementById("in-"+k);if(el.value.replace(/\s/g,"")){goals[k].push({t:el.value,d:0});el.value="";render()}};
+window.addTodo=function(){var el=document.getElementById("in-todo");if(el.value.replace(/\s/g,"")){todo.push({t:el.value,d:0});el.value="";render()}};
+window.addSug=function(i){todo.push({t:SUG[i],d:0});SUG.splice(i,1);render()};
+render();
+
+/* actualités : flux RSS via rss2json (nécessite que la page soit hébergée en ligne) */
+var FEEDS=["https://www.francetvinfo.fr/titres.rss","https://www.ouest-france.fr/rss/une"];
+var items=[],pending=0;
+function showNews(){
+ if(!items.length){document.getElementById("news").innerHTML='<li class="muted">Actualités indisponibles pour le moment. Nouvelle tentative dans quelques minutes.</li>';return}
+ var h="";for(var i=0;i<items.length&&i<9;i++){h+='<li>'+esc(items[i].title)+'<small>'+esc(items[i].src)+'</small></li>';}
+ document.getElementById("news").innerHTML=h;}
+function getFeed(url,src){pending++;
+ var x=new XMLHttpRequest();
+ x.open("GET","https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(url),true);
+ x.onreadystatechange=function(){if(x.readyState!==4)return;
+  try{var j=JSON.parse(x.responseText);if(j.items){for(var i=0;i<j.items.length&&i<6;i++){items.push({title:j.items[i].title,src:src})}}}catch(e){}
+  pending--;if(pending===0){
+   var a=[],b=[],k;for(k=0;k<items.length;k++){(items[k].src==="France Info"?a:b).push(items[k])}
+   items=[];for(k=0;k<6;k++){if(a[k])items.push(a[k]);if(b[k])items.push(b[k])}
+   showNews()}};
+ x.send();}
+function refreshNews(){items=[];getFeed(FEEDS[0],"France Info");getFeed(FEEDS[1],"Ouest-France");}
+refreshNews();setInterval(refreshNews,30*60*1000);
+/* rechargement complet toutes les 6 h pour garder la page fraîche */
+setTimeout(function(){location.reload()},6*60*60*1000);
+})();
+</script>
+</body>
+</html>
